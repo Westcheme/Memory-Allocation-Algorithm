@@ -1,15 +1,18 @@
 #include "Job.h"
 
+//Constructor for all Job types
 Job::Job()
 {
 	arrivalTime = rand() % 5 + 1;
 }
 
+//Manually sets the arrival time of any Job type by adding the randomly generated number to the input parameter
 void Job::setArrivalTime(int currentTime)
 {
 	arrivalTime += currentTime;
 }
 
+//Constructor for a Small Job
 smallJob::smallJob()
 {
 	type = "Small";
@@ -24,6 +27,7 @@ smallJob::smallJob()
 	}
 }
 
+//Constructor for Medium Job
 mediumJob::mediumJob()
 {
 	type = "Medium";
@@ -38,6 +42,7 @@ mediumJob::mediumJob()
 	}
 }
 
+//Constructor for a Large Job
 largeJob::largeJob()
 {
 	type = "Large";
@@ -52,6 +57,7 @@ largeJob::largeJob()
 	}
 }
 
+//Returns all of the contents, minus heap elements, of any Job type as a string
 string Job::contents()
 {
 	string temp = "";
@@ -66,6 +72,7 @@ string Job::contents()
 	return temp;
 }
 
+//Print all of the contents, minus heap elements, of any Job type to the terminal
 void Job::print()
 {
 	cout << type << endl;
@@ -74,8 +81,4 @@ void Job::print()
 	cout << "Code Size: " << codeSize << endl;
 	cout << "Stack Size: " << stackSize << endl;
 	cout << "# Heap Elements: " << numHeapElements << endl;
-	/*for (int i = 0; i < numHeapElements; i++)
-	{
-		cout << "Heap Element " << i << ": " << heapElements[i] << endl;
-	}*/
 }

@@ -11,6 +11,15 @@ Job *createNewSmlJob(int currentTime);
 Job *createNewMedJob(int currentTime);
 Job *createNewLrgJob(int currentTime);
 
+int mallocFF(int size);
+int freeFF(int loc);
+int mallocBF(int size);
+int freeBF(int loc);
+int mallocNF(int size);
+int freeNF(int loc);
+int mallocWF(int size);
+int freeWF(int loc);
+
 
 int main()
 {
@@ -18,9 +27,8 @@ int main()
 	int smlJobPerc, medJobPerc, lrgJobPerc, memUnitSize;
 	int totalSmlJobs, totalMedJobs, totalLrgJobs;
 	int actualTotalJobs = 0, currentNumSmlJobs = 0, currentNumMedJobs = 0, currentNumLrgJobs = 0;
-	bool smlJobsDone = false, medJobsDone = false, lrgJobsDone = false;
 	int randNum;
-	int timeUnit = 0, runTime = 12000, timeBlock = 5, totalJobs = runTime / timeBlock;
+	int timeUnit = 0, totalJobs = 12000/5;
 	Job *createdJob;
 	ofstream algorithmInput("algorithmInput.txt");
 
@@ -58,10 +66,11 @@ int main()
 	}
 
 
-	while (timeUnit < runTime)
+	while (timeUnit < 12000)
 	{
 		cout << timeUnit << "------------" << endl;
 
+		//If timeUnit is a multiple of 5, a random job will be created based on the percentages input by the user
 		if (timeUnit % 5 == 0)
 		{
 			randNum = (rand() % (smlJobPerc + medJobPerc + lrgJobPerc)) + 1;
@@ -98,21 +107,24 @@ int main()
 		cout << endl << endl << endl;
 		timeUnit++;
 	}
+	algorithmInput.close();
 
 	cout << "Actual Total Jobs Created: \t" << actualTotalJobs << endl;
 	cout << "Actual Small Jobs Created: \t" << currentNumSmlJobs << endl;
 	cout << "Actual Medium Jobs Created: \t" << currentNumMedJobs << endl;
 	cout << "Actual Large Jobs Created: \t" << currentNumLrgJobs << endl << endl;
 
-	cout << "Actual Percentage of Small Jobs: \t" << (float)currentNumSmlJobs / totalJobs * 100 << endl;
-	cout << "Actual Percentage of Medium Jobs: \t" << (float)currentNumMedJobs / totalJobs * 100 << endl;
-	cout << "Actual Percentage of Large Jobs: \t" << (float)currentNumLrgJobs / totalJobs * 100 << endl;
+	cout << "Actual Percentage of Small Jobs: \t" << (float)currentNumSmlJobs / actualTotalJobs * 100 << endl;
+	cout << "Actual Percentage of Medium Jobs: \t" << (float)currentNumMedJobs / actualTotalJobs * 100 << endl;
+	cout << "Actual Percentage of Large Jobs: \t" << (float)currentNumLrgJobs / actualTotalJobs * 100 << endl;
 
-	algorithmInput.close();
 	system("PAUSE");
 	return 0;
 }
 
+
+//Creates a new Small Job and returns it as a Job
+//Takes in the current time unit as a parameter in order to set the arrival time of the Job
 Job *createNewSmlJob(int currentTime)
 {
 	smallJob *newSmallJob = new smallJob;
@@ -120,6 +132,8 @@ Job *createNewSmlJob(int currentTime)
 	return newSmallJob;
 }
 
+//Creates a new Medium Job and returns it as a Job
+//Takes in the current time unit as a parameter in order to set the arrival time of the Job
 Job *createNewMedJob(int currentTime)
 {
 	mediumJob *newMediumJob = new mediumJob;
@@ -127,9 +141,53 @@ Job *createNewMedJob(int currentTime)
 	return newMediumJob;
 }
 
+//Creates a new Large Job and returns it as a Job
+//Takes in the current time unit as a parameter in order to set the arrival time of the Job
 Job *createNewLrgJob(int currentTime)
 {
 	largeJob *newLargeJob = new largeJob;
 	newLargeJob->setArrivalTime(currentTime);
 	return newLargeJob;
 }
+
+/*
+int mallocFF(int size)
+{
+
+}
+
+int freeFF(int loc)
+{
+
+}
+
+int mallocBF(int size)
+{
+
+}
+
+int freeBF(int loc)
+{
+
+}
+
+int mallocNF(int size)
+{
+
+}
+
+int freeNF(int loc)
+{
+
+}
+
+int mallocWF(int size)
+{
+
+}
+
+int freeWF(int loc)
+{
+
+}
+*/
