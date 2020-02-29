@@ -11,6 +11,8 @@ Job *createNewSmlJob(int currentTime);
 Job *createNewMedJob(int currentTime);
 Job *createNewLrgJob(int currentTime);
 
+void generateLostJob(Job job);
+
 int mallocFF(int size);
 int freeFF(int loc);
 int mallocBF(int size);
@@ -148,6 +150,11 @@ Job *createNewLrgJob(int currentTime)
 	largeJob *newLargeJob = new largeJob;
 	newLargeJob->setArrivalTime(currentTime);
 	return newLargeJob;
+}
+
+void generateLostJob(Job job)
+{
+
 }
 
 /*
