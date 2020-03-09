@@ -22,6 +22,7 @@ public:
 	void print();
 	void setArrivalTime(int currentTime);
 	string contents();
+	void set(string type, int arrivalTime, int runTime, int codeSize, int stackSize, int numHeapElements);
 };
 
 

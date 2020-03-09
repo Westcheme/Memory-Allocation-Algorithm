@@ -20,11 +20,6 @@ smallJob::smallJob()
 	codeSize = rand() % 41 + 40;
 	stackSize = rand() % 21 + 20;
 	numHeapElements = 50 * runTime;
-	heapElements = new int[numHeapElements];
-	for (int i = 0; i < numHeapElements; i++)
-	{
-		heapElements[i] = rand() % 31 + 20;
-	}
 }
 
 //Constructor for Medium Job
@@ -35,11 +30,6 @@ mediumJob::mediumJob()
 	codeSize = rand() % 61 + 60;
 	stackSize = rand() % 41 + 40;
 	numHeapElements = 100 * runTime;
-	heapElements = new int[numHeapElements];
-	for (int i = 0; i < numHeapElements; i++)
-	{
-		heapElements[i] = rand() % 31 + 20;
-	}
 }
 
 //Constructor for a Large Job
@@ -50,8 +40,18 @@ largeJob::largeJob()
 	codeSize = rand() % 101 + 120;
 	stackSize = rand() % 61 + 60;
 	numHeapElements = 250 * runTime;
-	heapElements = new int[numHeapElements];
-	for (int i = 0; i < numHeapElements; i++)
+}
+
+void Job::set(string stype, int sarrivalTime, int srunTime, int scodeSize, int sstackSize, int snumHeapElements)
+{
+	type = stype;
+	arrivalTime = sarrivalTime;
+	runTime = srunTime;
+	codeSize = scodeSize;
+	stackSize = sstackSize;
+	numHeapElements = snumHeapElements;
+	heapElements = new int[snumHeapElements];
+	for (int i = 0; i < snumHeapElements; i++)
 	{
 		heapElements[i] = rand() % 31 + 20;
 	}
