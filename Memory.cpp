@@ -61,5 +61,5 @@ void Memory::malloc(int loc)
 
 void Memory::free(int loc)
 {
-
+	//when job has lostobj, do not free up the memory slot
 }
