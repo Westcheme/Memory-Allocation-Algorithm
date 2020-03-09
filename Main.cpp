@@ -21,6 +21,7 @@ int main()
 	int actualTotalJobs = 0, currentNumSmlJobs = 0, currentNumMedJobs = 0, currentNumLrgJobs = 0;
 	int randNum;
 	int timeUnit = 0;
+	char lostObj;
 	Job *createdJob;
 	ofstream randomJobs("randomJobs.txt");
 
@@ -63,6 +64,10 @@ int main()
 		if (numMemUnits > 0) break;
 		else cout << "Must be greater than 0" << endl;
 	}
+
+	cout << "Generate lost objs? (y/n)";
+	cin >> lostObj;
+	
 	Memory myMemory(numMemUnits, memUnitSize);
 
 	//Random Job Generation Algorithm
