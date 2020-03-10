@@ -23,6 +23,9 @@ public:
 	void setArrivalTime(int currentTime);
 	string contents();
 	void set(string type, int arrivalTime, int runTime, int codeSize, int stackSize, int numHeapElements);
+	int getArrivalTime();
+	int getCodeSize();
+	int getStackSize();
 };
 
 

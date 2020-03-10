@@ -42,6 +42,21 @@ largeJob::largeJob()
 	numHeapElements = 250 * runTime;
 }
 
+int Job::getArrivalTime()
+{
+	return arrivalTime;
+}
+
+int Job::getCodeSize()
+{
+	return codeSize;
+}
+
+int Job::getStackSize()
+{
+	return stackSize;
+}
+
 void Job::set(string stype, int sarrivalTime, int srunTime, int scodeSize, int sstackSize, int snumHeapElements)
 {
 	type = stype;

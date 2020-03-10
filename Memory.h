@@ -7,19 +7,24 @@
 using namespace std;
 
 
+struct Block
+{
+	int size;
+	int internal_frag;
+	bool empty = true;
+};
+
 class Memory
 {
 private:
-	int **memoryBlocks;
 	int memorySize;
-	int blockSize;
+	Block *memoryBlocks;
 public:
 	Memory(int memorySize, int blockSize);
-	void print();
-	int mallocFF(Job job);
-	int mallocBF(int size);
-	int mallocNF(int size);
-	int mallocWF(int size);
+	void mallocFF(int size);
+	void mallocBF(int size);
+	void mallocNF(int size);
+	void mallocWF(int size);
 	void malloc(int loc);
 	void free(int loc);
 };

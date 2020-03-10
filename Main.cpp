@@ -64,17 +64,16 @@ int main()
 		if (numMemUnits > 0) break;
 		else cout << "Must be greater than 0" << endl;
 	}
-
-	cout << "Generate lost objs? (y/n)";
-	cin >> lostObj;
-	
 	Memory myMemory(numMemUnits, memUnitSize);
+
+
+	cout << "Generate Lost Objects? (y/n) ";
+	cin >> lostObj;
+
 
 	//Random Job Generation Algorithm
 	while (timeUnit < 12000)
 	{
-		//cout << timeUnit << "------------" << endl;
-
 		//If timeUnit is a multiple of 5, a random job will be created based on the percentages input by the user
 		if (timeUnit % 5 == 0)
 		{
@@ -84,7 +83,6 @@ int main()
 			{
 				createdJob = createNewSmlJob(timeUnit);
 				randomJobs << createdJob->contents();
-				//createdJob->print();
 				currentNumSmlJobs++;
 				actualTotalJobs++;
 				if (currentNumSmlJobs == totalSmlJobs) smlJobPerc = 0;
@@ -93,7 +91,6 @@ int main()
 			{
 				createdJob = createNewMedJob(timeUnit);
 				randomJobs << createdJob->contents();
-				//createdJob->print();
 				currentNumMedJobs++;
 				actualTotalJobs++;
 				if (currentNumMedJobs == totalMedJobs) medJobPerc = 0;
@@ -102,12 +99,19 @@ int main()
 			{
 				createdJob = createNewLrgJob(timeUnit);
 				randomJobs << createdJob->contents();
-				//createdJob->print();
 				currentNumLrgJobs++;
 				actualTotalJobs++;
 				if (currentNumSmlJobs == totalLrgJobs) lrgJobPerc = 0;
 			}
 		}
+
+		if (createdJob->getArrivalTime() == timeUnit)
+		{
+			myMemory.mallocFF(createdJob->getCodeSize());
+			myMemory.mallocFF(createdJob->getStackSize());
+			myMemory.mallocFF(createdJob->getHeapSize());
+		}
+
 		timeUnit++;
 	}
 	randomJobs.close();
@@ -121,32 +125,6 @@ int main()
 	cout << "Actual Percentage of Small Jobs: \t" << (float)currentNumSmlJobs / actualTotalJobs * 100 << endl;
 	cout << "Actual Percentage of Medium Jobs: \t" << (float)currentNumMedJobs / actualTotalJobs * 100 << endl;
 	cout << "Actual Percentage of Large Jobs: \t" << (float)currentNumLrgJobs / actualTotalJobs * 100 << endl;
-	
-
-	int at, rt, cs, ss, nhe, *he;
-	string t;
-	Job incomingJob;
-	ifstream algorithmInput("randomJobs.txt");
-	timeUnit = 0;
-
-	//Memory Allocation Algorithm
-	while (timeUnit < 12000)
-	{
-		algorithmInput >> at >> t >> rt >> cs >> ss >> nhe;
-
-		incomingJob.set(t, at, rt, cs, ss, nhe);
-
-		incomingJob.print();
-		cout << endl;
-
-		//if (timeUnit == incomingJob.arrivalTime)
-		//{
-		//	myMemory.mallocFF(incomingJob);
-		//}
-
-		timeUnit++;
-	}
-
 
 	system("PAUSE");
 	return 0;
