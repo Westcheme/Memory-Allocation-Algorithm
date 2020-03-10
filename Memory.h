@@ -27,5 +27,6 @@ public:
 	void mallocWF(int size);
 	void malloc(int loc);
 	void free(int loc);
+	void print();
 };
 

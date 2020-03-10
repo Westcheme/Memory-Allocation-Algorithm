@@ -16,16 +16,20 @@ protected:
 	int stackSize;
 	int numHeapElements;
 	int *heapElements;
+	int codeLocation;
+	int stackLocation;
+	int heapLocation;
 
 public:
 	Job();
 	void print();
 	void setArrivalTime(int currentTime);
 	string contents();
-	void set(string type, int arrivalTime, int runTime, int codeSize, int stackSize, int numHeapElements);
 	int getArrivalTime();
+	int getRunTime();
 	int getCodeSize();
 	int getStackSize();
+	int getHeapElements();
 };
 
 
