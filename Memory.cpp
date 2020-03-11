@@ -7,7 +7,7 @@ Memory::Memory(int memorySiz, int blockSiz)
 	memoryBlocks->size = blockSiz;
 }
 
-void Memory::mallocFF(int size)
+Block Memory::mallocFF(int size)
 {
 	int blocksNeeded = ceil(size / memoryBlocks->size);
 	int freeBlockCount = 0;
