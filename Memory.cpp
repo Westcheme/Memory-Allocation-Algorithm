@@ -11,37 +11,21 @@ void Memory::mallocFF(int size)
 {
 	int blocksNeeded = ceil(size / memoryBlocks->size);
 	int freeBlockCount = 0;
+
 	for (int i = 0; i < memorySize; i++)
 	{
-		if (memoryBlocks[i].empty == true)
+		if (memoryBlocks[i].empty == true) freeBlockCount++;
+		else if (memoryBlocks[i].empty == false) freeBlockCount = 0;
+
+		if (freeBlockCount == blocksNeeded)
 		{
-			for (int j = i; j < memorySize; j++)
+			for (int j = i - blocksNeeded + 1; j <= i; j++)
 			{
-				if (freeBlockCount == blocksNeeded)
-				{
-					for (int k = i; k < i + blocksNeeded; k++)
-					{
-						memoryBlocks[k].empty = false;
-						if (k == i + blocksNeeded - 1) memoryBlocks[k].internal_frag = memoryBlocks->size * blocksNeeded - size;
-						return;
-					}
-				}
-				if (memoryBlocks[j].empty == false)
-				{
-					int k = 0;
-					while(memoryBlocks[k].empty == false)
-					{
-						k++;
-					}
-					i = k;
-					break;
-				}
-				freeBlockCount++;
+				memoryBlocks[j].empty = false;
 			}
-		}
-		if (i == memorySize-1)
-		{
-			cout << "NOT ENOUGH MEMORY SPACE TO ALLOCATE JOB";
+			Block location = memoryBlocks[i - blocksNeeded + 1];
+			memoryBlocks[i].internal_frag = blocksNeeded * memoryBlocks->size - size;
+			return location;
 		}
 	}
 }
