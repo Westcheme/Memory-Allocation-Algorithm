@@ -25,10 +25,12 @@ public:
 	void print();
 	void setArrivalTime(int currentTime);
 	string contents();
+	string getType();
 	int getArrivalTime();
 	int getRunTime();
 	int getCodeSize();
 	int getStackSize();
+	int getNumHeapElements();
 	int getHeapElements();
 };
 

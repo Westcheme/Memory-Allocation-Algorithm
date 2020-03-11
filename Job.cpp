@@ -57,6 +57,11 @@ largeJob::largeJob()
 	}
 }
 
+string Job::getType()
+{
+	return type;
+}
+
 //Returns the runTime of the Job
 int Job::getRunTime()
 {
@@ -79,6 +84,11 @@ int Job::getCodeSize()
 int Job::getStackSize()
 {
 	return stackSize;
+}
+
+int Job::getNumHeapElements()
+{
+	return numHeapElements;
 }
 
 //It will return the total size of the first however many heapElements, depending on the Job Type
@@ -136,5 +146,5 @@ void Job::print()
 	cout << "Run Time: " << runTime << endl;
 	cout << "Code Size: " << codeSize << endl;
 	cout << "Stack Size: " << stackSize << endl;
-	cout << "# Heap Elements: " << numHeapElements << endl;
+	cout << "# Heap Elements: " << numHeapElements << endl << endl;
 }

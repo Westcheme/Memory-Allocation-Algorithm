@@ -14,6 +14,7 @@ Job createNewMedJob(int currentTime);
 Job createNewLrgJob(int currentTime);
 
 
+
 int main()
 {
 	srand(time(NULL));
@@ -115,7 +116,7 @@ int main()
 			}
 		}
 
-		/*
+		
 		//Once the arrivalTime has been reached of the incoming job, allocate its code and stack, and begin allocating its heapElements
 		if (createdJob.getArrivalTime() == timeUnit)
 		{
@@ -125,6 +126,7 @@ int main()
 			heapElementJobQueue.enqueue(createdJob);
 		}
 
+		//If heapElements must still be allocated then allocate them
 		if (!heapElementJobQueue.isEmpty())
 		{
 			myMemory.mallocFF(heapElementJobQueue.peek().getHeapElements());
@@ -137,7 +139,7 @@ int main()
 			//myMemory.free(heapElementJobQueue.dequeue().getStackLocation());
 			//myMemory.free(heapElementJobQueue.dequeue().getHeapLocation());
 		}
-		*/
+		
 
 		timeUnit++;
 	}

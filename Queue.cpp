@@ -30,8 +30,11 @@ Job Queue::dequeue()
 	}
 	else
 	{
+		Job temp;
 		length--;
-		return queue[front++];
+		temp = queue[front];
+		front++;
+		return temp;
 	}
 }
 
