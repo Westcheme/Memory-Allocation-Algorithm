@@ -21,7 +21,7 @@ private:
 	Block *memoryBlocks;
 public:
 	Memory(int memorySize, int blockSize);
-	void mallocFF(int size);
+	Block mallocFF(int size);
 	void mallocBF(int size);
 	void mallocNF(int size);
 	void mallocWF(int size);
