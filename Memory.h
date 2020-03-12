@@ -10,7 +10,7 @@ using namespace std;
 struct Block
 {
 	int size;
-	int internal_frag;
+	int internal_frag = 0;
 	bool empty = true;
 };
 
@@ -19,14 +19,15 @@ class Memory
 private:
 	int memorySize;
 	Block *memoryBlocks;
+	int lastLocation;
 public:
 	Memory(int memorySize, int blockSize);
 	Block mallocFF(int size);
-	void mallocBF(int size);
-	void mallocNF(int size);
-	void mallocWF(int size);
-	void malloc(int loc);
+	Block mallocBF(int size);
+	Block mallocNF(int size);
+	Block mallocWF(int size);
 	void free(int loc);
 	void print();
+	Block getLocationOf(int index);
 };
 

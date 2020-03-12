@@ -6,7 +6,7 @@
 #include "Job.h"
 #include "Memory.h"
 #include "Queue.h"
-
+using namespace std;
 
 
 Job createNewSmlJob(int currentTime);
@@ -24,9 +24,23 @@ int main()
 	int randNum;
 	int timeUnit = 0;
 	char lostObj;
+	bool simulateLostObjects = false;
 	Job createdJob;
 	Queue heapElementJobQueue;
 	ofstream randomJobs("randomJobs.txt");
+	string testName, logFileName, metricsFileName;
+
+	cout << "What would you like to name the Test? ";
+	cin >> testName;
+
+	cout << "Name of the Log File? ";
+	cin >> logFileName;
+
+	cout << "Name of the Metrics File? ";
+	cin >> metricsFileName;
+
+	ofstream logFile(logFileName + ".txt");
+	ofstream metricsFile(metricsFileName + ".txt");
 
 	while (true)
 	{
@@ -69,19 +83,21 @@ int main()
 	}
 	Memory myMemory(numMemUnits, memUnitSize);
 
-	myMemory.print();
-	cin.get();
-
 	while (true)
 	{
 		cout << "Generate Lost Objects? (y/n) ";
 		cin >> lostObj;
 
-		if (lostObj == 'Y' || lostObj == 'y' || lostObj == 'N' || lostObj == 'n') break;
+		if (lostObj == 'Y' || lostObj == 'y')
+		{
+			simulateLostObjects = true;
+			break;
+		}
+		else if (lostObj == 'N' || lostObj == 'n') break;
 		else cout << "Must be y or n" << endl;
 	}
 
-
+	cout << endl << testName << endl;
 
 	while (timeUnit < 12000)
 	{
@@ -116,7 +132,6 @@ int main()
 			}
 		}
 
-		
 		//Once the arrivalTime has been reached of the incoming job, allocate its code and stack, and begin allocating its heapElements
 		if (createdJob.getArrivalTime() == timeUnit)
 		{
@@ -129,8 +144,10 @@ int main()
 		//If heapElements must still be allocated then allocate them
 		if (!heapElementJobQueue.isEmpty())
 		{
+			if (simulateLostObjects == true && (currentNumSmlJobs % 100 == 0 || currentNumMedJobs % 100 == 0 || currentNumLrgJobs % 100 == 0)) goto skip;
 			myMemory.mallocFF(heapElementJobQueue.peek().getHeapElements());
 		}
+		skip:
 
 		//Once a jobs heapElements are finished allocating, free the job from memory
 		if (heapElementJobQueue.peek().getRunTime() == 0)
@@ -140,6 +157,11 @@ int main()
 			//myMemory.free(heapElementJobQueue.dequeue().getHeapLocation());
 		}
 		
+		//Outputting to Screen and Summary File
+		if (timeUnit >= 200 && timeUnit % 20)
+		{
+
+		}
 
 		timeUnit++;
 	}
@@ -157,6 +179,7 @@ int main()
 
 	return 0;
 }
+
 
 
 //Creates a new Small Job and returns it as a Job
