@@ -12,7 +12,6 @@ struct Block
 	int size;
 	int internal_frag = 0;
 	bool empty = true;
-	Job jobStored;
 };
 
 class Memory
@@ -29,9 +28,11 @@ public:
 	int mallocNF(int size);
 	int mallocWF(int size);
 	void free(int location, int size);
+	void clear();
 	int getTotalInternalFrag();
 	int largestBlock();
 	int smallestBlock();
 	void print();
+	Block& getLocation(int index);
 };
 

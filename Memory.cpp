@@ -119,7 +119,6 @@ int Memory::mallocWF(int size)
 {
 	int blocksNeeded = ceil((float)size / memoryBlocks->size);
 	int freeBlockCount = 0;
-	Block worstLocation = *memoryBlocks;
 	int worstLocationIndex = 0;
 	int worstSize = 0;
 
@@ -135,7 +134,8 @@ int Memory::mallocWF(int size)
 			}
 			freeBlockCount = 0;
 		}
-		else if (i == memorySize - 1)
+
+		if (i == memorySize - 1)
 		{
 			if (freeBlockCount > worstSize)
 			{
@@ -144,9 +144,10 @@ int Memory::mallocWF(int size)
 			}
 		}
 	}
+
 	if (blocksNeeded <= worstSize)
 	{
-		for (int i = worstLocationIndex; i < i + blocksNeeded; i++)
+		for (int i = worstLocationIndex; i < worstLocationIndex + blocksNeeded; i++)
 		{
 			memoryBlocks[i].empty = false;
 		}
@@ -163,11 +164,20 @@ int Memory::mallocWF(int size)
 //Given a jobs data location it will deallocate the data from memory and make it free for other data
 void Memory::free(int location, int size)
 {
-	if (location == -1) return;
 	for (int i = location; i < location + size; i++)
 	{
 		memoryBlocks[i].empty = true;
-		memoryBlocks[i].internal_frag = 0;;
+		memoryBlocks[i].internal_frag = 0;
+	}
+}
+
+//Clear the entire memory
+void Memory::clear()
+{
+	for (int i = 0; i < memorySize; i++)
+	{
+		memoryBlocks[i].empty = true;
+		memoryBlocks[i].internal_frag = 0;
 	}
 }
 
@@ -184,6 +194,11 @@ int Memory::largestBlock()
 			if (freeBlockCount > largestBlock) largestBlock = freeBlockCount;
 			freeBlockCount = 0;
 		}
+
+		if (i == memorySize - 1)
+		{
+			if (freeBlockCount > largestBlock) largestBlock = freeBlockCount;
+		}
 	}
 	return largestBlock;
 }
@@ -192,14 +207,19 @@ int Memory::largestBlock()
 int Memory::smallestBlock()
 {
 	int freeBlockCount = 0;
-	int smallestBlock = 0;
+	int smallestBlock = 2400;
 	for (int i = 0; i < memorySize; i++)
 	{
 		if (memoryBlocks[i].empty == true) freeBlockCount++;
 		else if (memoryBlocks[i].empty == false)
 		{
-			if (freeBlockCount < smallestBlock) smallestBlock = freeBlockCount;
+			if (freeBlockCount < smallestBlock && freeBlockCount != 0) smallestBlock = freeBlockCount;
 			freeBlockCount = 0;
+		}
+
+		if (i == memorySize - 1)
+		{
+			if (freeBlockCount < smallestBlock && freeBlockCount != 0) smallestBlock = freeBlockCount;
 		}
 	}
 	return smallestBlock;
@@ -231,4 +251,10 @@ void Memory::print()
 		cout << endl;
 	}
 	cout << endl;
+}
+
+Block& Memory::getLocation(int index)
+{
+
+	return memoryBlocks[index];
 }

@@ -19,7 +19,7 @@ Job createNewLrgJob(int currentTime);
 int main()
 {
 	srand(time(NULL));
-	int smlJobPerc, medJobPerc, lrgJobPerc, memUnitSize, numMemUnits;
+	int smlJobPerc, medJobPerc, lrgJobPerc, remSmlJobPerc, remMedJobPerc, remLrgJobPerc, memUnitSize, numMemUnits;
 	int totalSmlJobs, totalMedJobs, totalLrgJobs;
 	int actualTotalJobs = 0, currentNumSmlJobs = 0, currentNumMedJobs = 0, currentNumLrgJobs = 0;
 	int randNum;
@@ -56,12 +56,15 @@ int main()
 	{
 		cout << "Percentage of Small Jobs? ";
 		cin >> smlJobPerc;
+		remSmlJobPerc = smlJobPerc;
 
 		cout << "Percentage of Medium Jobs? ";
 		cin >> medJobPerc;
+		remMedJobPerc = medJobPerc;
 		
 		cout << "Percentage of Large Jobs? ";
 		cin >> lrgJobPerc;
+		remLrgJobPerc = lrgJobPerc;
 
 		if (smlJobPerc + medJobPerc + lrgJobPerc == 100) break;
 		else cout << "Must add to 100%" << endl;
@@ -114,6 +117,32 @@ int main()
 	//Will run through each memory allocation type in order of FF, NF, BF, WF
 	while (test < 4)
 	{
+		cout << "Test Number " << test << endl;
+
+		if (test == 0)
+		{
+			logFile << "First Fit" << endl << endl;
+			randomJobs << "First Fit" << endl << endl;
+		}
+		else if (test == 1)
+		{
+			logFile << "Next Fit" << endl << endl;
+			randomJobs << "Next Fit" << endl << endl;
+		}
+
+		else if (test == 2)
+		{
+			logFile << "Best Fit" << endl << endl;
+			randomJobs << "Best Fit" << endl << endl;
+		}
+
+		else if (test == 3)
+		{
+			logFile << "Worst Fit" << endl << endl;
+			randomJobs << "Worst Fit" << endl << endl;
+		}
+
+
 		while (timeUnit < 12000)
 		{
 			//If timeUnit is a multiple of 5, a random job will be created based on the percentages input by the user
@@ -179,6 +208,7 @@ int main()
 				numAllocations++;
 				heapElementJobQueue.enqueue(createdJob);
 				memAllocated += heapElementJobQueue.peek().totalJobSize();
+				logFile << "Job Allocation" << endl << "timeUnit: " << timeUnit << endl << "codeLocation: " << &myMemory.getLocation(codeLocation) << endl << "stackLocation: " << &myMemory.getLocation(stackLocation) << endl << endl;
 			}
 
 			//If heapElements must still be allocated then allocate them
@@ -192,6 +222,7 @@ int main()
 				heapElementJobQueue.runJob();
 				numHeapFreeRequests++;
 				numHeapAllocations++;
+				logFile << "Heap Allocation" << endl << "timeUnit: " << timeUnit << endl << "heapLocation: " << &myMemory.getLocation(heapLocation) << endl << endl;
 			}
 
 			//Once a jobs heapElements are finished allocating, free the job from memory
@@ -246,8 +277,36 @@ int main()
 		metricsFile << "number of allocations" << "\t\t\t" << numAllocations << endl;
 		metricsFile << "number of allocation operations" << "\t\t" << numAllocations * 2 + (numHeapAllocations / 2) << endl;
 		metricsFile << "number of free requests" << "\t\t\t" << numFreeRequests << endl;
-		metricsFile << "number of free operations" << "\t\t" << numFreeRequests + numHeapFreeRequests <<endl << endl << endl;
+		metricsFile << "number of free operations" << "\t\t" << numFreeRequests + numHeapFreeRequests << endl << endl << endl;
 		//METRICS//
+		logFile << endl << endl << endl;
+
+		//If final test, end
+		if (test == 3) break;
+		//Reset Memory
+		myMemory.clear();
+		//Reset parameters for each test
+		timeUnit = 0;
+		smlJobPerc = remSmlJobPerc;
+		medJobPerc = remMedJobPerc;
+		lrgJobPerc = remLrgJobPerc;
+		//Reset metrics for each test
+		currentNumSmlJobs = 0;
+		currentNumMedJobs = 0;
+		currentNumLrgJobs = 0;
+		actualTotalJobs = 0;
+		while (!heapElementJobQueue.isEmpty())
+		{
+			heapElementJobQueue.dequeue();
+		}
+		memAllocated = 0;
+		numHeapAllocations = 0;
+		numLostObjects = 0;
+		totalMemorySizeLostObjects = 0;
+		numAllocations = 0;
+		numFreeRequests = 0, numHeapFreeRequests = 0;
+
+		randomJobs << endl;
 
 		//Go to the next test
 		test++;
