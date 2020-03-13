@@ -5,7 +5,7 @@
 #include "Job.h"
 using namespace std;
 
-#define MAX 2400
+#define MAX 15000
 
 
 class Queue : protected Job
@@ -22,8 +22,7 @@ public:
 	void enqueue(Job item);
 	Job dequeue();
 	Job peek();
-	int size();
 	bool isEmpty();
 	bool isFull();
-	void print();
+	void runJob();
 };

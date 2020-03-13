@@ -43,32 +43,17 @@ Job Queue::peek()
 	return queue[front];
 }
 
-int Queue::size()
-{
-	return length;
-}
-
 bool Queue::isEmpty()
 {
-	return (size() == 0);
+	return (length == 0);
 }
 
 bool Queue::isFull()
 {
-	return (size() == MAX);
+	return (length == MAX);
 }
 
-/*
-void Queue::print()
+void Queue::runJob()
 {
-	for (int i = front; i < rear+1; i++)
-	{
-		cout << "ArrivalTime = " << queue[i].arrivalTime << endl;
-		cout << "Type = " << queue[i].type << endl;
-		cout << "RunTime = " << queue[i].runTime << endl;
-		cout << "CodeSize = " << queue[i].codeSize << endl;
-		cout << "StackSize =  " << queue[i].stackSize << endl;
-		cout << "NumHeapElements =  " << queue[i].numHeapElements << endl;
-	}
+	queue[front].run();
 }
-*/

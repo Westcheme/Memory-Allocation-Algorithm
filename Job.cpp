@@ -91,6 +91,33 @@ int Job::getNumHeapElements()
 	return numHeapElements;
 }
 
+void Job::run()
+{
+	runTime--;
+}
+
+int Job::getTotalHeapSize()
+{
+	int size = 0;
+	for (int i = 0; i < numHeapElements; i++)
+	{
+		size += heapElements[i];
+	}
+	return size;
+}
+
+int Job::totalJobSize()
+{
+	int size = 0;
+	size += codeSize;
+	size += stackSize;
+	for (int i = 0; i < numHeapElements; i++)
+	{
+		size += numHeapElements;
+	}
+	return size;
+}
+
 //It will return the total size of the first however many heapElements, depending on the Job Type
 int Job::getHeapElements()
 {
@@ -99,7 +126,7 @@ int Job::getHeapElements()
 	{
 		for (int i = 0; i < 50; i++)
 		{
-			totalSize += heapElements[0];
+			totalSize += heapElements[i];
 		}
 		heapElements = &heapElements[50];
 	}
@@ -119,7 +146,6 @@ int Job::getHeapElements()
 		}
 		heapElements = &heapElements[250];
 	}
-	runTime--;
 	return totalSize;
 }
 

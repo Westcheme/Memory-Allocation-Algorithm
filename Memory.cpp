@@ -7,8 +7,14 @@ Memory::Memory(int memorySiz, int blockSiz)
 	memoryBlocks->size = blockSiz;
 }
 
+//Returns the total internal fragmentation accumulated by the memory during runtime
+int Memory::getTotalInternalFrag()
+{
+	return totalInternalFrag;
+}
+
 //Finds the first block of memory which fits and stores the data in that location
-Block Memory::mallocFF(int size)
+int Memory::mallocFF(int size)
 {
 	int blocksNeeded = ceil((float)size / memoryBlocks->size);
 	int freeBlockCount = 0;
@@ -24,18 +30,19 @@ Block Memory::mallocFF(int size)
 			{
 				memoryBlocks[j].empty = false;
 			}
-			Block location = memoryBlocks[i - blocksNeeded + 1];
 			memoryBlocks[i].internal_frag = blocksNeeded * memoryBlocks->size - size;
+			totalInternalFrag += memoryBlocks[i].internal_frag;
 			lastLocation = i + 1;
-			return location;
+			return i - blocksNeeded + 1;
 		}
 	}
 	cout << endl << "COULD NOT FIT JOB INTO MEMORY";
+	system("PAUSE");
 	exit(EXIT_FAILURE);
 }
 
 //Finds the best block of memory which fits and stores the data in that location
-Block Memory::mallocBF(int size)
+int Memory::mallocBF(int size)
 {
 	int blocksNeeded = ceil((float)size / memoryBlocks->size);
 	int freeBlockCount = 0;
@@ -51,18 +58,19 @@ Block Memory::mallocBF(int size)
 			{
 				memoryBlocks[j].empty = false;
 			}
-			Block location = memoryBlocks[i - blocksNeeded + 1];
 			memoryBlocks[i].internal_frag = blocksNeeded * memoryBlocks->size - size;
+			totalInternalFrag += memoryBlocks[i].internal_frag;
 			lastLocation = i + 1;
-			return location;
+			return i - blocksNeeded + 1;
 		}
 	}
 	cout << endl << "COULD NOT FIT JOB INTO MEMORY";
+	system("PAUSE");
 	exit(EXIT_FAILURE);
 }
 
 //Finds the next block of memory which fits and stores the data in that location
-Block Memory::mallocNF(int size)
+int Memory::mallocNF(int size)
 {
 	int blocksNeeded = ceil((float)size / memoryBlocks->size);
 	int freeBlockCount = 0;
@@ -78,10 +86,10 @@ Block Memory::mallocNF(int size)
 			{
 				memoryBlocks[j].empty = false;
 			}
-			Block location = memoryBlocks[i - blocksNeeded + 1];
 			memoryBlocks[i].internal_frag = blocksNeeded * memoryBlocks->size - size;
+			totalInternalFrag += memoryBlocks[i].internal_frag;
 			lastLocation = i + 1;
-			return location;
+			return i - blocksNeeded + 1;
 		}
 	}
 	for (int i = 0; i < lastLocation; i++)
@@ -95,18 +103,19 @@ Block Memory::mallocNF(int size)
 			{
 				memoryBlocks[j].empty = false;
 			}
-			Block location = memoryBlocks[i - blocksNeeded + 1];
 			memoryBlocks[i].internal_frag = blocksNeeded * memoryBlocks->size - size;
+			totalInternalFrag += memoryBlocks[i].internal_frag;
 			lastLocation = i + 1;
-			return location;
+			return i - blocksNeeded + 1;
 		}
 	}
 	cout << endl << "COULD NOT FIT JOB INTO MEMORY";
+	system("PAUSE");
 	exit(EXIT_FAILURE);
 }
 
 //Finds the worst block of memory which fits and stores the data in that location
-Block Memory::mallocWF(int size)
+int Memory::mallocWF(int size)
 {
 	int blocksNeeded = ceil((float)size / memoryBlocks->size);
 	int freeBlockCount = 0;
@@ -141,17 +150,59 @@ Block Memory::mallocWF(int size)
 		{
 			memoryBlocks[i].empty = false;
 		}
-		Block location = memoryBlocks[worstLocationIndex + blocksNeeded - 1];
 		memoryBlocks[worstLocationIndex + blocksNeeded - 1].internal_frag = blocksNeeded * memoryBlocks->size - size;
+		totalInternalFrag += memoryBlocks[worstLocationIndex + blocksNeeded - 1].internal_frag;
 		lastLocation = worstLocationIndex + blocksNeeded - 1;
-		return location;
+		return worstLocationIndex;
 	}
+	cout << endl << "COULD NOT FIT JOB INTO MEMORY";
+	system("PAUSE");
+	exit(EXIT_FAILURE);
 }
 
 //Given a jobs data location it will deallocate the data from memory and make it free for other data
-void Memory::free(int loc)
+void Memory::free(int location, int size)
 {
+	if (location == -1) return;
+	for (int i = location; i < location + size; i++)
+	{
+		memoryBlocks[i].empty = true;
+		memoryBlocks[i].internal_frag = 0;;
+	}
+}
 
+//Returns the size of the largest block of open memory
+int Memory::largestBlock()
+{
+	int freeBlockCount = 0;
+	int largestBlock = 0;
+	for (int i = 0; i < memorySize; i++)
+	{
+		if (memoryBlocks[i].empty == true) freeBlockCount++;
+		else if (memoryBlocks[i].empty == false)
+		{
+			if (freeBlockCount > largestBlock) largestBlock = freeBlockCount;
+			freeBlockCount = 0;
+		}
+	}
+	return largestBlock;
+}
+
+//Returns the size of the smallest block of open memory
+int Memory::smallestBlock()
+{
+	int freeBlockCount = 0;
+	int smallestBlock = 0;
+	for (int i = 0; i < memorySize; i++)
+	{
+		if (memoryBlocks[i].empty == true) freeBlockCount++;
+		else if (memoryBlocks[i].empty == false)
+		{
+			if (freeBlockCount < smallestBlock) smallestBlock = freeBlockCount;
+			freeBlockCount = 0;
+		}
+	}
+	return smallestBlock;
 }
 
 //Prints the contents of the Memory
@@ -180,9 +231,4 @@ void Memory::print()
 		cout << endl;
 	}
 	cout << endl;
-}
-
-Block Memory::getLocationOf(int index)
-{
-	return memoryBlocks[index];
 }

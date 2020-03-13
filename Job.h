@@ -32,6 +32,9 @@ public:
 	int getStackSize();
 	int getNumHeapElements();
 	int getHeapElements();
+	int getTotalHeapSize();
+	int totalJobSize();
+	void run();
 };
 
 

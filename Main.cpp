@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <ctime>
+#include <iomanip>
 #include "Job.h"
 #include "Memory.h"
 #include "Queue.h"
@@ -27,8 +28,17 @@ int main()
 	bool simulateLostObjects = false;
 	Job createdJob;
 	Queue heapElementJobQueue;
+	int codeLocation, stackLocation, heapLocation;
 	ofstream randomJobs("randomJobs.txt");
 	string testName, logFileName, metricsFileName;
+
+	int memAllocated = 0;
+	int numHeapAllocations = 0;
+	int numLostObjects = 0;
+	int totalMemorySizeLostObjects = 0;
+	int numAllocations = 0;
+	int numFreeRequests = 0, numHeapFreeRequests = 0;
+	int smallestBlock, largestBlock;
 
 	cout << "What would you like to name the Test? ";
 	cin >> testName;
@@ -97,73 +107,150 @@ int main()
 		else cout << "Must be y or n" << endl;
 	}
 
+	int test = 0;
 	cout << endl << testName << endl;
+	metricsFile << testName << endl;
 
-	while (timeUnit < 12000)
+	//Will run through each memory allocation type in order of FF, NF, BF, WF
+	while (test < 4)
 	{
-		//If timeUnit is a multiple of 5, a random job will be created based on the percentages input by the user
-		if (timeUnit % 5 == 0)
+		while (timeUnit < 12000)
 		{
-			randNum = rand() % (smlJobPerc + medJobPerc + lrgJobPerc);
-
-			if (randNum < smlJobPerc && currentNumSmlJobs != totalSmlJobs)
+			//If timeUnit is a multiple of 5, a random job will be created based on the percentages input by the user
+			if (timeUnit % 5 == 0)
 			{
-				createdJob = createNewSmlJob(timeUnit);
-				randomJobs << createdJob.contents();
-				currentNumSmlJobs++;
-				actualTotalJobs++;
-				if (currentNumSmlJobs == totalSmlJobs) smlJobPerc = 0;
+				randNum = rand() % (smlJobPerc + medJobPerc + lrgJobPerc);
+
+				if (randNum < smlJobPerc && currentNumSmlJobs != totalSmlJobs)
+				{
+					createdJob = createNewSmlJob(timeUnit);
+					randomJobs << createdJob.contents();
+					currentNumSmlJobs++;
+					actualTotalJobs++;
+					if (currentNumSmlJobs == totalSmlJobs) smlJobPerc = 0;
+				}
+				else if (randNum >= smlJobPerc && randNum < (smlJobPerc + medJobPerc) && currentNumMedJobs != totalMedJobs)
+				{
+					createdJob = createNewMedJob(timeUnit);
+					randomJobs << createdJob.contents();
+					currentNumMedJobs++;
+					actualTotalJobs++;
+					if (currentNumMedJobs == totalMedJobs) medJobPerc = 0;
+				}
+				else if (randNum >= (smlJobPerc + medJobPerc) && randNum < (smlJobPerc + medJobPerc + lrgJobPerc) && currentNumLrgJobs != totalLrgJobs)
+				{
+					createdJob = createNewLrgJob(timeUnit);
+					randomJobs << createdJob.contents();
+					currentNumLrgJobs++;
+					actualTotalJobs++;
+					if (currentNumSmlJobs == totalLrgJobs) lrgJobPerc = 0;
+				}
 			}
-			else if (randNum >= smlJobPerc && randNum < (smlJobPerc + medJobPerc) && currentNumMedJobs != totalMedJobs)
+
+			if (timeUnit == 6000)
 			{
-				createdJob = createNewMedJob(timeUnit);
-				randomJobs << createdJob.contents();
-				currentNumMedJobs++;
-				actualTotalJobs++;
-				if (currentNumMedJobs == totalMedJobs) medJobPerc = 0;
+				largestBlock = myMemory.largestBlock();
+				smallestBlock = myMemory.smallestBlock();
 			}
-			else if (randNum >= (smlJobPerc + medJobPerc) && randNum < (smlJobPerc + medJobPerc + lrgJobPerc) && currentNumLrgJobs != totalLrgJobs)
+
+			//Once the arrivalTime has been reached of the incoming job, allocate its code and stack, and begin allocating its heapElements
+			if (createdJob.getArrivalTime() == timeUnit)
 			{
-				createdJob = createNewLrgJob(timeUnit);
-				randomJobs << createdJob.contents();
-				currentNumLrgJobs++;
-				actualTotalJobs++;
-				if (currentNumSmlJobs == totalLrgJobs) lrgJobPerc = 0;
+				if (test == 0)
+				{
+					codeLocation = myMemory.mallocFF(createdJob.getCodeSize());
+					stackLocation = myMemory.mallocFF(createdJob.getStackSize());
+				}
+				else if (test == 1)
+				{
+					codeLocation = myMemory.mallocNF(createdJob.getCodeSize());
+					stackLocation = myMemory.mallocNF(createdJob.getStackSize());
+				}
+				else if (test == 2)
+				{
+					codeLocation = myMemory.mallocBF(createdJob.getCodeSize());
+					stackLocation = myMemory.mallocBF(createdJob.getStackSize());
+				}
+				else if (test == 3)
+				{
+					codeLocation = myMemory.mallocWF(createdJob.getCodeSize());
+					stackLocation = myMemory.mallocWF(createdJob.getStackSize());
+				}
+				numAllocations++;
+				heapElementJobQueue.enqueue(createdJob);
+				memAllocated += heapElementJobQueue.peek().totalJobSize();
 			}
+
+			//If heapElements must still be allocated then allocate them
+			if (!heapElementJobQueue.isEmpty())
+			{
+				if (test == 0) heapLocation = myMemory.mallocFF(heapElementJobQueue.peek().getHeapElements());
+				else if (test == 1) heapLocation = myMemory.mallocNF(heapElementJobQueue.peek().getHeapElements());
+				else if (test == 2) heapLocation = myMemory.mallocBF(heapElementJobQueue.peek().getHeapElements());
+				else if (test == 3) heapLocation = myMemory.mallocWF(heapElementJobQueue.peek().getHeapElements());
+				myMemory.free(heapLocation, heapElementJobQueue.peek().getHeapElements());
+				heapElementJobQueue.runJob();
+				numHeapFreeRequests++;
+				numHeapAllocations++;
+			}
+
+			//Once a jobs heapElements are finished allocating, free the job from memory
+			if (heapElementJobQueue.peek().getRunTime() == 0 && !heapElementJobQueue.isEmpty())
+			{
+				if (simulateLostObjects == true && (currentNumSmlJobs % 100 == 0 || currentNumMedJobs % 100 == 0 || currentNumLrgJobs % 100 == 0))
+				{
+					numLostObjects++;
+					totalMemorySizeLostObjects += heapElementJobQueue.dequeue().totalJobSize();
+					goto skip;
+				}
+				myMemory.free(codeLocation, heapElementJobQueue.peek().getCodeSize());
+				myMemory.free(stackLocation, heapElementJobQueue.peek().getStackSize());
+				myMemory.free(heapLocation, heapElementJobQueue.peek().getHeapElements());
+				numFreeRequests++;
+				heapElementJobQueue.dequeue();
+			}
+			skip:
+
+			//Outputting to Screen and Summary File
+			if (timeUnit >= 200 && timeUnit % 20)
+			{
+
+			}
+
+			timeUnit++;
 		}
 
-		//Once the arrivalTime has been reached of the incoming job, allocate its code and stack, and begin allocating its heapElements
-		if (createdJob.getArrivalTime() == timeUnit)
-		{
-			myMemory.mallocFF(createdJob.getCodeSize());
-			myMemory.mallocFF(createdJob.getStackSize());
-			myMemory.mallocFF(createdJob.getHeapElements());
-			heapElementJobQueue.enqueue(createdJob);
-		}
+		//METRICS//
+		if (test == 0) metricsFile << "\t\t\t\t\t" << "First Fit" << endl;
+		else if (test == 1) metricsFile << "\t\t\t\t\t" << "Next Fit" << endl;
+		else if (test == 2) metricsFile << "\t\t\t\t\t" << "Best Fit" << endl;
+		else if (test == 3) metricsFile << "\t\t\t\t\t" << "Worst Fit" << endl;
+		metricsFile << "number of small jobs" << "\t\t\t" << currentNumSmlJobs << endl;
+		metricsFile << "number of medium jobs" << "\t\t\t" << currentNumMedJobs << endl;
+		metricsFile << "number of large jobs" << "\t\t\t" << currentNumLrgJobs << endl;
+		metricsFile << "total memory defined" << "\t\t\t" << numMemUnits * memUnitSize << endl;
+		metricsFile << "memory allocated" << "\t\t\t" << memAllocated << endl;
+		metricsFile << "% memory in use" << "\t\t\t\t" << (float)(numMemUnits * memUnitSize) / memAllocated * 100 << endl;
+		metricsFile << "required amount of memory" << "\t\t" << memAllocated << endl;
+		metricsFile << "internal fragmentation" << "\t\t\t" << myMemory.getTotalInternalFrag() << endl;
+		metricsFile << "% internal fragmentation" << "\t\t" << setprecision(5) << (float)myMemory.getTotalInternalFrag() / (numMemUnits * memUnitSize) * 100 << endl;
+		metricsFile << "% memory free" << "\t\t\t\t" << (float)100 - (numMemUnits * memUnitSize) / memAllocated * 100 << endl;
+		metricsFile << "external fragmentation" << "\t\t\t" << memAllocated - (numMemUnits * memUnitSize) << endl;
+		metricsFile << "largest free space" << "\t\t\t" << largestBlock * memUnitSize << endl;
+		metricsFile << "smallest free space" << "\t\t\t" << smallestBlock * memUnitSize << endl;
+		metricsFile << "number heap allocations" << "\t\t\t" << numHeapAllocations << endl;
+		metricsFile << "number of lost ojects" << "\t\t\t" << numLostObjects << endl;
+		if (simulateLostObjects == false) metricsFile << "total memory size of lost objects" << "\t" << totalMemorySizeLostObjects << endl;
+		else if (simulateLostObjects == true) metricsFile << "total memory size of lost objects" << "\t" << totalMemorySizeLostObjects << endl;
+		metricsFile << "% memory of lost objects" << "\t\t" << (float)totalMemorySizeLostObjects / memAllocated * 100 << endl;
+		metricsFile << "number of allocations" << "\t\t\t" << numAllocations << endl;
+		metricsFile << "number of allocation operations" << "\t\t" << numAllocations * 2 + (numHeapAllocations / 2) << endl;
+		metricsFile << "number of free requests" << "\t\t\t" << numFreeRequests << endl;
+		metricsFile << "number of free operations" << "\t\t" << numFreeRequests + numHeapFreeRequests <<endl << endl << endl;
+		//METRICS//
 
-		//If heapElements must still be allocated then allocate them
-		if (!heapElementJobQueue.isEmpty())
-		{
-			if (simulateLostObjects == true && (currentNumSmlJobs % 100 == 0 || currentNumMedJobs % 100 == 0 || currentNumLrgJobs % 100 == 0)) goto skip;
-			myMemory.mallocFF(heapElementJobQueue.peek().getHeapElements());
-		}
-		skip:
-
-		//Once a jobs heapElements are finished allocating, free the job from memory
-		if (heapElementJobQueue.peek().getRunTime() == 0)
-		{
-			//myMemory.free(heapElementJobQueue.dequeue().getCodeLocation());
-			//myMemory.free(heapElementJobQueue.dequeue().getStackLocation());
-			//myMemory.free(heapElementJobQueue.dequeue().getHeapLocation());
-		}
-		
-		//Outputting to Screen and Summary File
-		if (timeUnit >= 200 && timeUnit % 20)
-		{
-
-		}
-
-		timeUnit++;
+		//Go to the next test
+		test++;
 	}
 	randomJobs.close();
 
