@@ -91,6 +91,36 @@ int Job::getNumHeapElements()
 	return numHeapElements;
 }
 
+int Job::getCodeLocation()
+{
+	return codeLocation;
+}
+
+int Job::getStackLocation()
+{
+	return stackLocation;
+}
+
+int Job::getHeapLocation()
+{
+	return heapLocation;
+}
+
+void Job::setCodeLocation(int codeLocationIndex)
+{
+	codeLocation = codeLocationIndex;
+}
+
+void Job::setStackLocation(int stackLocationIndex)
+{
+	stackLocation = stackLocationIndex;
+}
+
+void Job::setHeapLocation(int heapLocationIndex)
+{
+	heapLocation = heapLocationIndex;
+}
+
 void Job::run()
 {
 	runTime--;

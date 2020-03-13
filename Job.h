@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include "Memory.h"
 using namespace std;
 
 
@@ -34,6 +35,12 @@ public:
 	int getHeapElements();
 	int getTotalHeapSize();
 	int totalJobSize();
+	int getCodeLocation();
+	int getStackLocation();
+	int getHeapLocation();
+	void setCodeLocation(int codeLocationIndex);
+	void setStackLocation(int stackLocationIndex);
+	void setHeapLocation(int heapLocationIndex);
 	void run();
 };
 

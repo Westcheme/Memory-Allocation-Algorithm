@@ -205,6 +205,8 @@ int main()
 					codeLocation = myMemory.mallocWF(createdJob.getCodeSize());
 					stackLocation = myMemory.mallocWF(createdJob.getStackSize());
 				}
+				createdJob.setCodeLocation(codeLocation);
+				createdJob.setStackLocation(stackLocation);
 				numAllocations++;
 				heapElementJobQueue.enqueue(createdJob);
 				memAllocated += heapElementJobQueue.peek().totalJobSize();
@@ -218,6 +220,7 @@ int main()
 				else if (test == 1) heapLocation = myMemory.mallocNF(heapElementJobQueue.peek().getHeapElements());
 				else if (test == 2) heapLocation = myMemory.mallocBF(heapElementJobQueue.peek().getHeapElements());
 				else if (test == 3) heapLocation = myMemory.mallocWF(heapElementJobQueue.peek().getHeapElements());
+				heapElementJobQueue.peek().setHeapLocation(heapLocation);
 				myMemory.free(heapLocation, heapElementJobQueue.peek().getHeapElements());
 				heapElementJobQueue.runJob();
 				numHeapFreeRequests++;
@@ -228,7 +231,7 @@ int main()
 			//Once a jobs heapElements are finished allocating, free the job from memory
 			if (heapElementJobQueue.peek().getRunTime() == 0 && !heapElementJobQueue.isEmpty())
 			{
-				if (simulateLostObjects == true && (currentNumSmlJobs % 100 == 0 || currentNumMedJobs % 100 == 0 || currentNumLrgJobs % 100 == 0))
+				if (simulateLostObjects == true && (currentNumSmlJobs % 100+1 == 0 || currentNumMedJobs % 100+1 == 0 || currentNumLrgJobs % 100+1 == 0))
 				{
 					numLostObjects++;
 					totalMemorySizeLostObjects += heapElementJobQueue.dequeue().totalJobSize();
@@ -237,15 +240,33 @@ int main()
 				myMemory.free(codeLocation, heapElementJobQueue.peek().getCodeSize());
 				myMemory.free(stackLocation, heapElementJobQueue.peek().getStackSize());
 				myMemory.free(heapLocation, heapElementJobQueue.peek().getHeapElements());
+				logFile << "Job Deallocation" << endl << "timeUnit: " << timeUnit << endl << "codeLocation: " << &myMemory.getLocation(heapElementJobQueue.peek().getCodeLocation()) << endl << "stackLocation: " << &myMemory.getLocation(heapElementJobQueue.peek().getStackLocation()) << endl << "heapLocation: " << &myMemory.getLocation(heapElementJobQueue.peek().getHeapLocation()) << endl << endl;
 				numFreeRequests++;
 				heapElementJobQueue.dequeue();
 			}
 			skip:
 
 			//Outputting to Screen and Summary File
-			if (timeUnit >= 200 && timeUnit % 20)
+			if (timeUnit >= 2000 && timeUnit % 20)
 			{
-
+				cout << timeUnit << "--------------------" << endl;
+				cout << "total memory defined: " << memUnitSize * numMemUnits << endl;
+				cout << "memory allocated: " << memAllocated << endl;
+				cout << "% memory in use: " << (float)(numMemUnits * memUnitSize) / memAllocated * 100 << endl;
+				cout << "required amount of memory: " << memAllocated << endl;
+				cout << "% internal fragmentation: " << setprecision(5) << (float)myMemory.getTotalInternalFrag() / (numMemUnits * memUnitSize) * 100 << endl;
+				cout << "% memory free: " << (float)100 - (numMemUnits * memUnitSize) / memAllocated * 100 << endl;
+				cout << "external fragmentation: " << memAllocated - (numMemUnits * memUnitSize) << endl;
+				cout << "largest free space: " << myMemory.largestBlock() << endl;
+				cout << "smallest free space: " << myMemory.smallestBlock() << endl;
+				cout << "number of heap allocations: " << numHeapAllocations << endl;
+				cout << "number of lost objects: " << numLostObjects << endl;
+				cout << "total memory size of lost objects" << totalMemorySizeLostObjects << endl;
+				cout << "% memory of lost objects" << (float)totalMemorySizeLostObjects / memAllocated * 100 << endl;
+				cout << "number of allocations: " << numAllocations << endl;
+				cout << "number of allocation operations: " << numAllocations * 2 + (numHeapAllocations / 2) << endl;
+				cout << "number of free requests: " << numFreeRequests << endl;
+				cout << "number of free operations: " << numFreeRequests + numHeapFreeRequests << endl << endl << endl;
 			}
 
 			timeUnit++;
@@ -271,8 +292,7 @@ int main()
 		metricsFile << "smallest free space" << "\t\t\t" << smallestBlock * memUnitSize << endl;
 		metricsFile << "number heap allocations" << "\t\t\t" << numHeapAllocations << endl;
 		metricsFile << "number of lost ojects" << "\t\t\t" << numLostObjects << endl;
-		if (simulateLostObjects == false) metricsFile << "total memory size of lost objects" << "\t" << totalMemorySizeLostObjects << endl;
-		else if (simulateLostObjects == true) metricsFile << "total memory size of lost objects" << "\t" << totalMemorySizeLostObjects << endl;
+		metricsFile << "total memory size of lost objects" << "\t" << totalMemorySizeLostObjects << endl;
 		metricsFile << "% memory of lost objects" << "\t\t" << (float)totalMemorySizeLostObjects / memAllocated * 100 << endl;
 		metricsFile << "number of allocations" << "\t\t\t" << numAllocations << endl;
 		metricsFile << "number of allocation operations" << "\t\t" << numAllocations * 2 + (numHeapAllocations / 2) << endl;
